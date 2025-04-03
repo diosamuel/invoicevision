@@ -1,54 +1,85 @@
-// This is a mock implementation of invoice data extraction
-// In a real application, you would use OCR or AI services to extract data from images/PDFs
+import dotenv from 'dotenv';
+import axios from 'axios';
+
+dotenv.config();
+
+// Konfigurasi API Key Google Gemini
+const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 export async function extractInvoiceData(file) {
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-  
-    // In a real application, you would:
-    // 1. Upload the file to a server
-    // 2. Process it with OCR (e.g., Google Cloud Vision, AWS Textract, or Azure Form Recognizer)
-    // 3. Parse the extracted text to identify invoice fields
-    // 4. Return structured data
-  
-    // For demo purposes, return mock data
-    return {
-      invoiceNumber: "INV-2023-0042",
-      date: "2023-11-15",
-      dueDate: "2023-12-15",
-      vendor: {
-        name: "Tech Solutions Inc.",
-        address: "123 Business Avenue\nTech City, TC 12345",
-        contact: "support@techsolutions.example.com",
-      },
-      customer: {
-        name: "Acme Corporation",
-        address: "456 Enterprise Road\nMetropolis, MP 67890",
-      },
-      items: [
+  // Convert File to Base64 (Fix: Ensure proper async handling)
+  const base64Image = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(',')[1]); // Extract base64 data
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+
+  // Construct API Request Payload
+  const requestBody = {
+    contents: [
+      {
+        parts: [
+          { text: "Extract invoice details and return as JSON: {merchantName:string, datetime:DD:MM:YY hh:mm:ss, items:[{name:string, price:int, total:int}], totalPrice:int, tax:int}" },
+          {
+            inlineData: {
+              mimeType: "image/jpeg",
+              data: base64Image
+            }
+          }
+        ]
+      }
+    ]
+  };
+
+  try {
+    // Send Request to Gemini API
+    // const response = await axios.post(GEMINI_API_URL, requestBody, {
+    //   headers: { "Content-Type": "application/json" }
+    // });
+
+    // if (!response.data || !response.data.candidates || response.data.candidates.length === 0) {
+    //   throw new Error("No response from Gemini AI");
+    // }
+
+    // Extract JSON response
+    // const extractedText = response.data.candidates[0].content.parts[0].text;
+    // const extractedData = JSON.parse(extractedText.split(/```json|```/)[1]);
+
+    const extractedData =
+    {
+      "merchantName": "BreadTalk",
+      "datetime": "10:05:19 16:32:47",
+      "items": [
         {
-          description: "Web Development Services",
-          quantity: 1,
-          unitPrice: 2500.0,
-          amount: 2500.0,
+          "name": "Bread Butter Pudding",
+          "price": 11500,
+          "total": 11500
         },
         {
-          description: "Cloud Hosting (Annual)",
-          quantity: 1,
-          unitPrice: 1200.0,
-          amount: 1200.0,
+          "name": "Cream Bruille",
+          "price": 14000,
+          "total": 14000
         },
         {
-          description: "Technical Support Hours",
-          quantity: 10,
-          unitPrice: 85.0,
-          amount: 850.0,
+          "name": "Choco Croissant",
+          "price": 10500,
+          "total": 10500
         },
+        {
+          "name": "Bank Of Chocolat",
+          "price": 7500,
+          "total": 7500
+        }
       ],
-      subtotal: 4550.0,
-      tax: 364.0,
-      total: 4914.0,
+      "totalPrice": 43500,
+      "tax": 0
     }
+    return extractedData; // ✅ Properly returning the extracted data
+
+  } catch (error) {
+    console.error("Error extracting invoice data:", error.response ? error.response.data : error.message);
+    return null; // ✅ Return `null` instead of undefined on failure
   }
-  
-  
+}

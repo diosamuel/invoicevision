@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   DropdownMenu,
@@ -14,93 +14,27 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, MoreHorizontal, FileText, Download, Eye } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
-// Mock data for invoice history
-const invoices = [
-  {
-    id: "INV-2023-0042",
-    date: "2023-11-15",
-    vendor: "Tech Solutions Inc.",
-    amount: 4914.0,
-    status: "Processed",
-    category: "Services",
-  },
-  {
-    id: "INV-2023-0041",
-    date: "2023-11-10",
-    vendor: "Office Supplies Co.",
-    amount: 1250.0,
-    status: "Processed",
-    category: "Supplies",
-  },
-  {
-    id: "INV-2023-0040",
-    date: "2023-11-05",
-    vendor: "Web Hosting Ltd.",
-    amount: 3200.0,
-    status: "Processed",
-    category: "IT",
-  },
-  {
-    id: "INV-2023-0039",
-    date: "2023-11-01",
-    vendor: "Marketing Agency",
-    amount: 5600.0,
-    status: "Processed",
-    category: "Marketing",
-  },
-  {
-    id: "INV-2023-0038",
-    date: "2023-10-28",
-    vendor: "Consulting Group",
-    amount: 2800.0,
-    status: "Processed",
-    category: "Consulting",
-  },
-  {
-    id: "INV-2023-0037",
-    date: "2023-10-25",
-    vendor: "Office Rent LLC",
-    amount: 3500.0,
-    status: "Processed",
-    category: "Rent",
-  },
-  {
-    id: "INV-2023-0036",
-    date: "2023-10-20",
-    vendor: "Utility Company",
-    amount: 450.0,
-    status: "Processed",
-    category: "Utilities",
-  },
-  {
-    id: "INV-2023-0035",
-    date: "2023-10-15",
-    vendor: "Catering Services",
-    amount: 850.0,
-    status: "Processed",
-    category: "Food",
-  },
-]
 
 export default function InvoiceHistoryTable() {
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1)
   const rowsPerPage = 5
   const totalPages = Math.ceil(invoices.length / rowsPerPage)
 
   const paginatedInvoices = invoices.slice((page - 1) * rowsPerPage, page * rowsPerPage)
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Processed":
-        return "bg-green-100 text-green-800"
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800"
-      case "Failed":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
+  useEffect(() => {
+    async function fetchInvoices() {
+      const res = await fetch("/api/invoices");
+      const data = await res.json();
+      setInvoices(data);
+      setLoading(false);
+      console.log(data)
     }
-  }
+    fetchInvoices();
+  }, []);
+
 
   return (
     <div className="space-y-4">
@@ -111,9 +45,7 @@ export default function InvoiceHistoryTable() {
               <TableHead>Invoice ID</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Vendor</TableHead>
-              <TableHead>Category</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -126,15 +58,9 @@ export default function InvoiceHistoryTable() {
                     {invoice.id}
                   </div>
                 </TableCell>
-                <TableCell>{invoice.date}</TableCell>
-                <TableCell>{invoice.vendor}</TableCell>
-                <TableCell>{invoice.category}</TableCell>
-                <TableCell className="text-right">${invoice.amount.toFixed(2)}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className={getStatusColor(invoice.status)}>
-                    {invoice.status}
-                  </Badge>
-                </TableCell>
+                <TableCell>{invoice.datetime}</TableCell>
+                <TableCell>{invoice.merchant_name}</TableCell>
+                <TableCell className="text-right">Rp{invoice.total_price.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
