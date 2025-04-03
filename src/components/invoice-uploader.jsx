@@ -177,7 +177,7 @@ export default function InvoiceUploader() {
                 <p className="text-muted-foreground">Processing your invoice...</p>
               </div>
             ) : invoiceData ? (
-              <InvoiceDescription data={invoiceData} />
+              <InvoiceDescription data={invoiceData} image={file}/>
             ) : (
               <div className="text-center py-10 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />

@@ -35,47 +35,47 @@ export async function extractInvoiceData(file) {
 
   try {
     // Send Request to Gemini API
-    // const response = await axios.post(GEMINI_API_URL, requestBody, {
-    //   headers: { "Content-Type": "application/json" }
-    // });
+    const response = await axios.post(GEMINI_API_URL, requestBody, {
+      headers: { "Content-Type": "application/json" }
+    });
 
-    // if (!response.data || !response.data.candidates || response.data.candidates.length === 0) {
-    //   throw new Error("No response from Gemini AI");
-    // }
+    if (!response.data || !response.data.candidates || response.data.candidates.length === 0) {
+      throw new Error("No response from Gemini AI");
+    }
 
     // Extract JSON response
-    // const extractedText = response.data.candidates[0].content.parts[0].text;
-    // const extractedData = JSON.parse(extractedText.split(/```json|```/)[1]);
+    const extractedText = response.data.candidates[0].content.parts[0].text;
+    const extractedData = JSON.parse(extractedText.split(/```json|```/)[1]);
 
-    const extractedData =
-    {
-      "merchantName": "BreadTalk",
-      "datetime": "10:05:19 16:32:47",
-      "items": [
-        {
-          "name": "Bread Butter Pudding",
-          "price": 11500,
-          "total": 11500
-        },
-        {
-          "name": "Cream Bruille",
-          "price": 14000,
-          "total": 14000
-        },
-        {
-          "name": "Choco Croissant",
-          "price": 10500,
-          "total": 10500
-        },
-        {
-          "name": "Bank Of Chocolat",
-          "price": 7500,
-          "total": 7500
-        }
-      ],
-      "totalPrice": 43500,
-      "tax": 0
-    }
+    // const extractedData =
+    // {
+    //   "merchantName": "BreadTalk",
+    //   "datetime": "10:05:19 16:32:47",
+    //   "items": [
+    //     {
+    //       "name": "Bread Butter Pudding",
+    //       "price": 11500,
+    //       "total": 11500
+    //     },
+    //     {
+    //       "name": "Cream Bruille",
+    //       "price": 14000,
+    //       "total": 14000
+    //     },
+    //     {
+    //       "name": "Choco Croissant",
+    //       "price": 10500,
+    //       "total": 10500
+    //     },
+    //     {
+    //       "name": "Bank Of Chocolat",
+    //       "price": 7500,
+    //       "total": 7500
+    //     }
+    //   ],
+    //   "totalPrice": 43500,
+    //   "tax": 0
+    // }
     return extractedData; // ✅ Properly returning the extracted data
 
   } catch (error) {

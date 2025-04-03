@@ -15,27 +15,11 @@ import { ChevronLeft, ChevronRight, MoreHorizontal, FileText, Download, Eye } fr
 import { Badge } from "@/components/ui/badge"
 
 
-export default function InvoiceHistoryTable() {
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function InvoiceHistoryTable({ invoices }) {
   const [page, setPage] = useState(1)
   const rowsPerPage = 5
   const totalPages = Math.ceil(invoices.length / rowsPerPage)
-
   const paginatedInvoices = invoices.slice((page - 1) * rowsPerPage, page * rowsPerPage)
-
-  useEffect(() => {
-    async function fetchInvoices() {
-      const res = await fetch("/api/invoices");
-      const data = await res.json();
-      setInvoices(data);
-      setLoading(false);
-      console.log(data)
-    }
-    fetchInvoices();
-  }, []);
-
-
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -73,15 +57,7 @@ export default function InvoiceHistoryTable() {
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem>
                         <Eye className="mr-2 h-4 w-4" />
-                        <span>View details</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Download className="mr-2 h-4 w-4" />
-                        <span>Download PDF</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <span>Archive</span>
+                        <a href={`data:image/png;base64,${invoice.invoice_image_base64}`} target="_blank">Download</a>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
