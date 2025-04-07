@@ -91,101 +91,104 @@ export default function InvoiceUploader() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="grid md:grid-cols-2 gap-6 max-w-4xl w-full">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload Invoice</CardTitle>
-            <CardDescription>Upload an invoice image or PDF to extract information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center ${error ? "border-red-400" : "border-gray-300"
-                }`}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-            >
-              {!file ? (
-                <div className="space-y-4">
-                  <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Upload className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Drag and drop your invoice, or</p>
-                    <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-                      Browse Files
-                    </Button>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      className="hidden"
-                      accept="image/jpeg,image/png,image/jpg,application/pdf"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Supported formats: JPEG, PNG, PDF</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="relative mx-auto max-w-xs">
-                    {preview && (
-                      <img
-                        src={preview || "/placeholder.svg"}
-                        alt="Invoice preview"
-                        className="max-h-[300px] mx-auto object-contain"
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-center text-2xl font-bold my-5">Upload Nota Anda disini📃</h1>
+      <div className="flex items-center justify-center">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl w-full">
+          <Card>
+            <CardHeader>
+              <CardTitle>Upload Nota</CardTitle>
+              <CardDescription>Unggah Nota dalam bentuk gambar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div
+                className={`border-2 border-dashed rounded-lg p-6 text-center ${error ? "border-red-400" : "border-gray-300"
+                  }`}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+              >
+                {!file ? (
+                  <div className="space-y-4">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Upload className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Drag and drop your invoice, or</p>
+                      <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
+                        Browse Files
+                      </Button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept="image/jpeg,image/png,image/jpg,application/pdf"
                       />
-                    )}
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6"
-                      onClick={resetUpload}
-                    >
-                      <X className="h-4 w-4" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Supported formats: JPEG, PNG</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="relative mx-auto max-w-xs">
+                      {preview && (
+                        <img
+                          src={preview || "/placeholder.svg"}
+                          alt="Invoice preview"
+                          className="max-h-[300px] mx-auto object-contain"
+                        />
+                      )}
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6"
+                        onClick={resetUpload}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium">{file.name}</span>
+                    </div>
+                    <Button onClick={processInvoice} disabled={isProcessing} className="w-full">
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        "Extract Invoice Data"
+                      )}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    <span className="text-sm font-medium">{file.name}</span>
-                  </div>
-                  <Button onClick={processInvoice} disabled={isProcessing} className="w-full">
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      "Extract Invoice Data"
-                    )}
-                  </Button>
+                )}
+                {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Hasil Deskripsi Nota</CardTitle>
+              <CardDescription>Hasil isi dari Nota akan ditampilkan disini</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isProcessing ? (
+                <div className="flex flex-col items-center justify-center py-10">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                  <p className="text-muted-foreground">Processing your invoice...</p>
+                </div>
+              ) : invoiceData ? (
+                <InvoiceDescription data={invoiceData} image={file} />
+              ) : (
+                <div className="text-center py-10 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                  <p>Upload and process an invoice to see the extracted information</p>
                 </div>
               )}
-              {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Hasil Deskripsi Nota</CardTitle>
-            <CardDescription>Extracted information from your invoice</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isProcessing ? (
-              <div className="flex flex-col items-center justify-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground">Processing your invoice...</p>
-              </div>
-            ) : invoiceData ? (
-              <InvoiceDescription data={invoiceData} image={file}/>
-            ) : (
-              <div className="text-center py-10 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>Upload and process an invoice to see the extracted information</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

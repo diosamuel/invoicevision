@@ -2,11 +2,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-
+import { useToast } from "@/components/ui/use-toast"
 
 export default function InvoiceDescription({ data,image }) {
   const [success,setSuccess] = useState(null)
   const [error,setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+
   const saveNota = async () =>{
     // {"merchantName":"PT ALBANY CORONA LESTARI","datetime":"03:07:15 19:19","items":[{"name":"NISSIN LEMONIA 700GR","price":37500,"total":32500},{"name":"TANGO WFR ROYALE 380","price":27850,"total":22500},{"name":"TANGO WAFER CHOC0385","price":27850,"total":22500},{"name":"NISSIN WFR CHOCO 330","price":26900,"total":16900},{"name":"BIG COLA BTL 3.1L","price":14900,"total":9900},{"name":"QTELA TEMPE R/LAUT60","price":5400,"total":5400},{"name":"TARO SEAWEED 70G","price":7500,"total":7500},{"name":"VISINE ORIGINAL 6ML","price":12500,"total":12500},{"name":"MIZONE CRSP APPL 500","price":5900,"total":5900}],"totalPrice":135600,"tax":15118}
 
@@ -37,16 +40,26 @@ export default function InvoiceDescription({ data,image }) {
       const result = await response.json();
 
       if (response.ok) {
-        setSuccess('Invoice created successfully');
-        setError(null);
-        console.log(response)
+        toast({
+          title: "Success",
+          description: "Invoice created successfully",
+          variant: "default",
+        });
       } else {
-        setSuccess(null);
-        setError(result.error || 'Something went wrong');
+        toast({
+          title: "Error",
+          description: result.error || 'Something went wrong',
+          variant: "destructive",
+        });
       }
     } catch (err) {
-      setSuccess(null);
-      setError('Error connecting to the server');
+      toast({
+        title: "Error",
+        description: "Error connecting to the server",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -112,7 +125,13 @@ export default function InvoiceDescription({ data,image }) {
         </p>
       </div>
 
-      <Button className="w-full mt-5" onClick={saveNota}>Simpan Catatan Nota</Button>
+      <Button 
+        className="w-full mt-5" 
+        onClick={saveNota}
+        disabled={loading}
+      >
+        {loading ? "Saving..." : "Simpan Catatan Nota"}
+      </Button>
     </div>
 
   )
